@@ -2,6 +2,8 @@
 .cc {
   background: no-repeat center/cover;
   background-image: url("/cc-bg.svg");
+  background-color: black;
+  border-radius: 20px; 
   width: 36rem;
   height: 23rem;
   padding: 2rem;
