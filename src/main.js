@@ -90,13 +90,9 @@ const cardNumberPattern = {
   dispatch: function (appended, dynamicMasked) {
     const number = (dynamicMasked.value + appended).replace(/\D/g, "")
     const foundMask = dynamicMasked.compiledMasks.find((item) => number.match(item.regex))
-    console.log(foundMask)
     return foundMask;
   },
 }
 const carNumberMasked = IMask(cardNumber, cardNumberPattern);
-
-
-
 
 globalThis.setCardType = setCardType
