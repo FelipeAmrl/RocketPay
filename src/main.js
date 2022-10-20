@@ -1,53 +1,18 @@
 import "./css/index.css"
 import IMask from "imask"
 
-const ccBgColor01 = document.querySelector(".cc-bg svg > g g:nth-child(1) path");
-const ccBgColor02 = document.querySelector(".cc-bg svg > g g:nth-child(2) path");
-const ccLogoImg = document.querySelector(".cc-logo span:nth-child(2) img");
-const securityCode = document.querySelector("#security-code");
-const expirationDate = document.querySelector("#expiration-date");
-const cardNumber = document.querySelector("#card-number");
+const ccBgColor01 = document.querySelector(".cc-bg svg > g g:nth-child(1) path")
+const ccBgColor02 = document.querySelector(".cc-bg svg > g g:nth-child(2) path")
+const ccLogoImg = document.querySelector(".cc-logo span:nth-child(2) img")
+const securityCode = document.querySelector("#security-code")
+const expirationDate = document.querySelector("#expiration-date")
+const cardNumber = document.querySelector("#card-number")
+const cardHolder = document.querySelector("#card-holder")
+const cardForm = document.querySelector("form")
+const addButton = document.querySelector("#add-card")
 
-function setCardType(type) {
-  const colors = {
-    visa: ["#436D99", "#2D57F2"],
-    mastercard: ["#DF6F29", "#C69347"],
-    elo: ["#FFCB05", "#00A4E0"],
-    hipercard: ["#D90D32", "#8C1822"],
-    amex: ["#0077A6", "#FFFFFF"],
-    diners: ["#BFAA69", "#FFE9A6"],
-    default: ["black", "gray"],
-  }
-
-  ccBgColor01.setAttribute("fill", colors[type][0]);
-  ccBgColor02.setAttribute("fill", colors[type][1]);
-  ccLogoImg.setAttribute("src", `./cc-${type}.svg`);
-}
-
-const securityCodePattern = {
-  mask: "0000",
-}
-const securityCodeMasked = IMask(securityCode, securityCodePattern);
-
-let currentYear = String(new Date().getFullYear()).slice(2);
-let tenYearsFromNow = String(new Date().getFullYear() + 10).slice(2);
-
-const expirationDatePattern = {
-  mask: "MM{/}YY",
-  blocks: {
-    MM: {
-      mask: IMask.MaskedRange,
-      from: 1,
-      to: 12,
-    },
-    YY: {
-      mask: IMask.MaskedRange,
-      from: currentYear,
-      to: tenYearsFromNow,
-    },
-  },
-}
-const expirationDateMasked = IMask(expirationDate, expirationDatePattern);
+let currentYear = String(new Date().getFullYear()).slice(2)
+let tenYearsFromNow = String(new Date().getFullYear() + 10).slice(2)
 
 const cardNumberPattern = {
   mask: [
@@ -89,10 +54,93 @@ const cardNumberPattern = {
   ],
   dispatch: function (appended, dynamicMasked) {
     const number = (dynamicMasked.value + appended).replace(/\D/g, "")
-    const foundMask = dynamicMasked.compiledMasks.find((item) => number.match(item.regex))
-    return foundMask;
+    const foundMask = dynamicMasked.compiledMasks.find((item) =>
+      number.match(item.regex)
+    )
+    return foundMask
   },
 }
 const carNumberMasked = IMask(cardNumber, cardNumberPattern);
 
-globalThis.setCardType = setCardType
+const securityCodePattern = {
+  mask: "0000",
+}
+const securityCodeMasked = IMask(securityCode, securityCodePattern)
+
+const expirationDatePattern = {
+  mask: "MM{/}YY",
+  blocks: {
+    MM: {
+      mask: IMask.MaskedRange,
+      from: 1,
+      to: 12,
+    },
+    YY: {
+      mask: IMask.MaskedRange,
+      from: currentYear,
+      to: tenYearsFromNow,
+    },
+  },
+}
+const expirationDateMasked = IMask(expirationDate, expirationDatePattern)
+
+carNumberMasked.on("accept", () => {
+  const cardType = carNumberMasked.masked.currentMask.cardtype
+  setCardType(cardType)
+  updateCardNumber(carNumberMasked.value)
+})
+
+securityCodeMasked.on("accept", () => {
+  updateSecurityCode(securityCodeMasked.value)
+})
+
+expirationDateMasked.on("accept", () => {
+  updateExpirationDate(expirationDateMasked.value)
+})
+
+cardHolder.addEventListener("input", () => {
+  const ccHolder = document.querySelector(".cc-holder .value")
+  ccHolder.innerText =
+    cardHolder.value.length === 0 ? "NAME ON THE CARD" : cardHolder.value
+})
+
+addButton.addEventListener("click", (event) => {
+  alert("Cartão adicionado!")
+})
+
+cardForm.addEventListener("submit", (event) => {
+  event.preventDefault()
+})
+
+function setCardType(type) {
+  const colors = {
+    visa: ["#436D99", "#2D57F2"],
+    mastercard: ["#DF6F29", "#C69347"],
+    elo: ["#FFCB05", "#00A4E0"],
+    hipercard: ["#D90D32", "#8C1822"],
+    amex: ["#0077A6", "#FFFFFF"],
+    diners: ["#BFAA69", "#FFE9A6"],
+    default: ["black", "gray"],
+  }
+
+  ccBgColor01.setAttribute("fill", colors[type][0])
+  ccBgColor02.setAttribute("fill", colors[type][1])
+  ccLogoImg.setAttribute("src", `./cc-${type}.svg`)
+}
+
+function updateCardNumber(number) {
+  const ccNumberValue = document.querySelector(".cc-number")
+  ccNumberValue.innerText = number.length === 0 ? "1234 5678 9012 3456" : number
+}
+
+function updateSecurityCode (code)
+{
+  const ccSecurityValue = document.querySelector(".cc-security .value");
+  ccSecurityValue.innerText = code.length === 0 ? "123" : code;
+}
+
+function updateExpirationDate(date)
+{
+  const ccExpirationValue = document.querySelector(".cc-expiration .value");
+  ccExpirationValue.innerText = date.length === 0 ? "02/32" : date;
+}
